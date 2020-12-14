@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/result.dart';
+
+import './question.dart';
+import './answer.dart';
+import './result.dart';
 
 void main() => runApp(QuizApp());
 
@@ -8,45 +13,72 @@ class QuizApp extends StatefulWidget {
 }
 
 class _QuizAppState extends State<QuizApp> {
-  void answerPressed() {
+  var questionIndex = 0;
+  var totalScore = 0;
+  void _answerPressed(int score) {
     setState(() {
+      totalScore = totalScore + score;
       questionIndex += 1;
     });
+    print(questionIndex);
   }
 
-  var questionIndex = 0;
+  void restartTest() {
+    setState(() {
+      totalScore = 0;
+      questionIndex = 0;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     var questions = [
-      'What is your favourite color?',
-      'What is your favourite animal?',
-      'Who is your favourite instructor?',
+      {
+        'questionText': 'What is your favourite color?',
+        'answers': [
+          {'text': 'Black', 'score': 1},
+          {'text': 'Red', 'score': 2},
+          {'text': 'Green', 'score': 3},
+          {'text': 'White', 'score': 4}
+        ]
+      },
+      {
+        'questionText': 'What is your favourite animal?',
+        'answers': [
+          {'text': 'Snakes', 'score': 1},
+          {'text': 'Lion', 'score': 2},
+          {'text': 'Rabbit', 'score': 3}
+        ]
+      },
+      {
+        'questionText': 'Who is your favourite instructor?',
+        'answers': [
+          {'text': 'Max', 'score': 1},
+          {'text': 'Max', 'score': 1},
+          {'text': 'Max', 'score': 1},
+          {'text': 'Max', 'score': 1},
+        ]
+      },
     ];
     return MaterialApp(
-      title: 'Quiz',
+      title: 'Personality',
       home: Scaffold(
         appBar: AppBar(
-          title: Row(
-            children: [
-              Text('Quiz App'),
-              RaisedButton(
-                child: Text('?'),
-                onPressed: answerPressed,
-              ),
-            ],
-          ),
+          title: Text('Personality App'),
         ),
-        body: Column(
-          children: [
-            Text(questions[questionIndex]),
-            RaisedButton(
-                child: Text('Answer 1'),
-                onPressed: () => print("Answer 1 pressed")),
-            RaisedButton(child: Text('Answer 2'), onPressed: answerPressed),
-            RaisedButton(child: Text('Answer 3'), onPressed: answerPressed),
-          ],
-        ),
+        body: questionIndex < questions.length
+            ? Column(
+                children: [
+                  Question(questions[questionIndex]['questionText']),
+                  ...(questions[questionIndex]['answers']
+                          as List<Map<String, Object>>)
+                      .map((answer) {
+                    return Answer(
+                        () => _answerPressed(answer['score']), answer['text']);
+                  }).toList()
+                ],
+              )
+            : Result(totalScore, restartTest),
       ),
     );
   }
